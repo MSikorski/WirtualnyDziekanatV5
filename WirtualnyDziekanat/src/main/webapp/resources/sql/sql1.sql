@@ -41,9 +41,9 @@ CREATE TABLE `user_detail` (
   KEY `FK_STUDENT_DETAIL_idx` (`student_detail_id`),
   KEY `FK_ADMIN_DETAIL_idx` (`admin_detail_id`),
   KEY `FK_TEACHER_DETAIL_idx` (`teacher_detail_id`),
-  CONSTRAINT `FK_STUDENT_DETAIL` FOREIGN KEY (`student_detail_id`) REFERENCES `student_detail` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ADMIN_DETAIL` FOREIGN KEY (`admin_detail_id`) REFERENCES `admin_detail` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_TEACHER_DETAIL` FOREIGN KEY (`teacher_detail_id`) REFERENCES `teacher_detail` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `FK_STUDENT_DETAIL` FOREIGN KEY (`student_detail_id`) REFERENCES `student_detail` (`id`),
+  CONSTRAINT `FK_ADMIN_DETAIL` FOREIGN KEY (`admin_detail_id`) REFERENCES `admin_detail` (`id`),
+  CONSTRAINT `FK_TEACHER_DETAIL` FOREIGN KEY (`teacher_detail_id`) REFERENCES `teacher_detail` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 

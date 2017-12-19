@@ -2,6 +2,16 @@ use `DziennikMobilny`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `log`;
+
+CREATE TABLE `log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_detail_id` int(11) DEFAULT NULL,
+  `type` varchar(45) DEFAULT NULL,
+  `detail` varchar(2000) DEFAULT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
 DROP TABLE IF EXISTS `admin_detail`;
 
 CREATE TABLE `admin_detail` (
@@ -14,6 +24,7 @@ DROP TABLE IF EXISTS `teacher_detail`;
 
 CREATE TABLE `teacher_detail` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `test` int(5) DEFAULT 10,
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
@@ -39,6 +50,16 @@ CREATE TABLE `subject` (
   PRIMARY KEY (`id`),
   KEY `FK_SUBJECT_TIMETABLE_idx` (`time_table_id`),
   CONSTRAINT `FK_SUBJECT_TIMETABLE` FOREIGN KEY (`time_table_id`) REFERENCES `time_table` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `subject_teacher` (
+  `teacher_detail_id` int(11) NOT NULL,
+  `subject_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`teacher_detail_id`),
+  KEY `FK_SUBJECT_TEACHER_idx` (`teacher_detail_id`),
+  KEY `FK_SUBJECT_SUBJECT_idx` (`subject_id`),
+  CONSTRAINT `FK_SUBJECT_TEACHER` FOREIGN KEY (`teacher_detail_id`) REFERENCES `teacher_detail` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SUBJECT_SUBJECT` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 

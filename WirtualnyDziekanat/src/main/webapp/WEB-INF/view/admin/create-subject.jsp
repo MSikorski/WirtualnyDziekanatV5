@@ -46,7 +46,7 @@
 
 	<table>
 		<tr>
-			<td><label>Nazwa grupy:</label></td>
+			<td><label>Nazwa przedmiotu:</label></td>
 			<td><form:input path="subject.name" /></td>
 		</tr>
 		

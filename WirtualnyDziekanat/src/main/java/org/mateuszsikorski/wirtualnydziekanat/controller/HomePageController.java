@@ -17,12 +17,9 @@ import org.springframework.web.servlet.ModelAndView;
 @SessionAttributes("user")
 public class HomePageController {
 	
-	@Autowired
-	UserService userService;
-	
 	@ModelAttribute("user")
 	public User getUser() {
-		if(getAuth() != null) {
+		if(getAuth().getPrincipal() instanceof User) {
 			Authentication auth = getAuth();
 			User user = (User) auth.getPrincipal();
 			System.out.println("User recived from auth");

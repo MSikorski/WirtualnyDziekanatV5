@@ -6,9 +6,12 @@ import javax.validation.Valid;
 import org.mateuszsikorski.wirtualnydziekanat.entity.User;
 import org.mateuszsikorski.wirtualnydziekanat.model.LoginDetail;
 import org.mateuszsikorski.wirtualnydziekanat.model.Privagles;
+import org.mateuszsikorski.wirtualnydziekanat.model.UserDetailForm;
 import org.mateuszsikorski.wirtualnydziekanat.service.interfaces.LoginService;
 import org.mateuszsikorski.wirtualnydziekanat.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +35,16 @@ public class UserController {
 
 	@ModelAttribute("user")
 	public User getUser() {
-		return new User();
+		if(getAuth().getPrincipal() instanceof User) {
+			Authentication auth = getAuth();
+			User user = (User) auth.getPrincipal();
+			System.out.println("User recived from auth");
+			return user;
+		} else return new User();
+	}
+
+	private Authentication getAuth() {
+		return SecurityContextHolder.getContext().getAuthentication();
 	}
 
 	// Logowanie
@@ -41,29 +53,7 @@ public class UserController {
 
 		return "login/login-form";
 	}
-/*
-	// Autoryzacja logowania
-	@PostMapping("/loginproceed")
-	public ModelAndView loginValidation(@ModelAttribute("user") User user,
-			@ModelAttribute("loginDetail") LoginDetail loginDetail) {
 
-		ModelAndView mav = new ModelAndView();
-
-		if (loginService.validate(loginDetail)) {
-			user = loginService.getUser();
-			mav.addObject("user", user);
-			String msg = "Zalogowano poprawnie";
-			mav.addObject("msg", msg);
-			mav.setViewName("/login/login-succed");
-		} else {
-			String msg = "Niepoprawna nazwa uzytkownika lub haslo";
-			mav.addObject("msg", msg);
-			mav.setViewName("/login/login-form");
-			return mav;
-		}
-		return mav;
-	}
-*/
 	@GetMapping("/loginproceed")
 	public String redirectFromPost1() {
 		return "forward:/user/login";
@@ -76,7 +66,7 @@ public class UserController {
 		session.removeAttribute("user");
 		session.invalidate();
 
-		return "redirect:/";
+		return "redirect:/user/login";
 	}
 
 	// Rejestracja uzytkownika
@@ -115,19 +105,19 @@ public class UserController {
 			mav.setViewName("/user/add-user-form");
 			return mav;
 		} else {
-			//userService.saveUserDetail(user.getUserDetail());
 			try {
 				System.out.println("\n-----\n/user/save/ Saving the user in db: " + user);
-				userService.saveUserFirstTime(user);
+				userService.saveUserFirstTime(user, user.getUserDetail());
 			} catch (Exception e) {
+				System.out.println(e);
 				msg = "Nazwa uzytkownika jest juz wykorzystana";
 				mav.addObject("msg", msg);
 				mav.setViewName("/user/add-user-form");
 				return mav;
 			}
 		}
-
-		mav.setViewName("redirect:/user/detail");
+		
+		mav.setViewName("redirect:/user/logout");
 		
 		return mav;
 	}
@@ -142,30 +132,23 @@ public class UserController {
 	public ModelAndView showDetail(@ModelAttribute("user") User user) {
 
 		ModelAndView mav = new ModelAndView();
-
-		Privagles privagles = new Privagles();
 		
-		if (user.getUserName() == "Niezarejestrowany") {
-			return HomePageController.actionFailed("Uzytkownik nie jest zarejestrowany");
-		}
+		UserDetailForm userDetailForm = new UserDetailForm(user);
 
-		if ((user.getUserDetail().getAdminDetail() == null) && (user.getUserDetail().getStudentDetail() == null)
-				&& (user.getUserDetail().getTeacherDetail() == null)) {
+		if (user.getUserDetail().getStudentDetail() == null)
+			userDetailForm.getPrivagles().setStudentPrivagles(false);
 
-			mav.addObject("privagles", privagles);
-		} else {
-			if (user.getUserDetail().getStudentDetail() == null)
-				privagles.setStudentPrivagles(false);
+		if (user.getUserDetail().getTeacherDetail() == null)
+			userDetailForm.getPrivagles().setTeacherPrivagles(false);
 
-			if (user.getUserDetail().getTeacherDetail() == null)
-				privagles.setTeacherPrivagles(false);
+		if (user.getUserDetail().getAdminDetail() == null)
+			userDetailForm.getPrivagles().setAdminPrivagles(false);
 
-			if (user.getUserDetail().getAdminDetail() == null)
-				privagles.setAdminPrivagles(false);
+		mav.addObject("userDetailForm", userDetailForm);
+		
 
-			mav.addObject("privagles", privagles);
-		}
-
+		mav.addObject("userDetailForm", userDetailForm);
+		
 		mav.setViewName("/user/user-detail-form");
 
 		System.out.println("\n-----\n/user/detail User + " + user);
@@ -175,29 +158,21 @@ public class UserController {
 
 	// Szczegoly profilu uzytkownika
 	@PostMapping("/saveDetail")
-	public ModelAndView saveUserDetail(@ModelAttribute("user") @Valid User user,
-			@ModelAttribute("privagles") Privagles privagles, BindingResult bR) {
+	public ModelAndView saveUserDetail(@ModelAttribute("user") User user,
+			@ModelAttribute("userDetailForm") UserDetailForm userDetailForm) {
 
 		ModelAndView mav = new ModelAndView();
+		
+		user.pasteProporties(userDetailForm.getUser());
 
-		mav.setViewName("/user/user-detail-form");
-
-		String msg = "";
-
-		if (bR.hasErrors()) {
-			System.out.println("\n-----\n/user/saveDetail Incorrect data recieved");
-			msg = "Niepoprawnie wprowadzone dane";
-		} else {
-			user.setUserDetail(privagles.Validate(user.getUserDetail()));
+		user.setUserDetail(userDetailForm.getPrivagles().Validate(user.getUserDetail()));
 			
-			System.out.println("\n-----\n/user/saveDetail Saving the user in db: " + user.getUserDetail());
+		System.out.println("\n-----\n/user/saveDetail Saving the user in db: " + user.getUserDetail());
 			
-			userService.saveUser(user);
-			msg = "Poprawnie zapisano dane";
-		}
-
-		mav.addObject("msg", msg);
-
+		userService.saveUser(user, user.getUserDetail());
+		
+		mav.setViewName("redirect:/user/detail");
+		
 		return mav;
 	}
 

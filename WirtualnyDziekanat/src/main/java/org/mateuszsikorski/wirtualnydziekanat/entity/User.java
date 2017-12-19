@@ -19,8 +19,6 @@ import javax.validation.constraints.Size;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-
-
 @Component
 @Entity
 @Table(name="user")
@@ -53,6 +51,8 @@ public class User {
 	public void processAuthorities() {
 		
 		grantedAuthorities = new ArrayList();
+		
+		grantedAuthorities.add(new SimpleGrantedAuthority("USER"));
 		
 		if(userDetail.getAdminDetail().getId() > 0) {
 			grantedAuthorities.add(
@@ -140,7 +140,7 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", userName=" + userName + ", password=" + password + /*"\nLast url: " + lastUrl + */"\nuserDetail=" + userDetail
+		return "User [id=" + id + ", userName=" + userName + ", password=" + password + "\nuserDetail=" + userDetail
 				+ "]";
 	}
 	

@@ -40,11 +40,11 @@
 	</tr>
 </table>
 
-<center><h2>Zarzadzanie grupa studencka ${studentGroup.name}</h2></center>
+<center><h2>Zarzadzanie grupa studencka ${studentGroup.name} id ${helpForm.studentGroupId}</h2></center>
 
-<form:form action="saveUpdatedStudentGroup" method="POST">
+<form:form action="/WirtualnyDziekanat/admin/saveUpdatedStudentGroup" method="POST" modelAttribute="helpForm">
 
-<input type="hidden" name="${helpForm.studentGroupId}"/>
+<form:input  type="hidden" path="studentGroupId" />
 
 <h4>Lista studentow w grupie</h4>
 <table>
@@ -58,14 +58,14 @@
 	
 	<c:forEach var="tempStudentDetail" items="${helpForm.studentList}" varStatus="status">
 					
-		<c:set var = "checkBoxPath" value="helpForm.removeCB.field${status.index}" />
+		<c:set var = "checkBoxPath" value="removeCB.field${status.index}" />
 						
 		<tr>
 			<td>${tempStudentDetail.userDetail.firstName}</td>
 			<td>${tempStudentDetail.userDetail.lastName}</td>
 			<td>${tempStudentDetail.indexNumber}</td>
 			<td>${tempStudentDetail.specialization}</td>
-			<td><input type="checkbox" name="${checkBoxPath}"/></td>
+			<td><form:checkbox path="${checkBoxPath}"/></td>
 		</tr>
 	</c:forEach>
 </table>
@@ -82,21 +82,21 @@
 	
 	<c:forEach var="tempStudentDetailWithoutGroup" items="${helpForm.studentListWithoutGroup}" varStatus="status">
 		
-		<c:set var = "checkBoxPath" value="helpForm.addCB.field${status.index}" />
+		<c:set var = "checkBoxPath" value="addCB.field${status.index}" />
 				
 		<tr>
 			<td>${tempStudentDetailWithoutGroup.userDetail.firstName}</td>
 			<td>${tempStudentDetailWithoutGroup.userDetail.lastName}</td>
 			<td>${tempStudentDetailWithoutGroup.indexNumber}</td>
 			<td>${tempStudentDetailWithoutGroup.specialization}</td>
-			<td><input type="checkbox" name="${checkBoxPath}"/></td>
+			<td><form:checkbox path="${checkBoxPath}"/></td>
 		</tr>
 		
 	</c:forEach>
 	
 	<tr>
 		<td></td><td></td><td></td><td></td>
-		<td><input type="submit" value="Zaaktualizuj grupe" /></td>
+		<td><input name="submit" type="submit" value="Zaaktualizuj grupe" /></td>
 	</tr>
 	
 </table>

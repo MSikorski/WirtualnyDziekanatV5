@@ -1,15 +1,16 @@
 package org.mateuszsikorski.wirtualnydziekanat.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.mateuszsikorski.wirtualnydziekanat.aspect.LogService;
+import org.mateuszsikorski.wirtualnydziekanat.entity.Log;
 import org.mateuszsikorski.wirtualnydziekanat.entity.StudentDetail;
 import org.mateuszsikorski.wirtualnydziekanat.entity.StudentGroup;
 import org.mateuszsikorski.wirtualnydziekanat.entity.Subject;
 import org.mateuszsikorski.wirtualnydziekanat.entity.TimeTable;
 import org.mateuszsikorski.wirtualnydziekanat.entity.User;
-import org.mateuszsikorski.wirtualnydziekanat.model.Privagles;
 import org.mateuszsikorski.wirtualnydziekanat.model.UpdatingStudentGroupHelpFrom;
+import org.mateuszsikorski.wirtualnydziekanat.model.UserDetailForm;
 import org.mateuszsikorski.wirtualnydziekanat.service.interfaces.StudentService;
 import org.mateuszsikorski.wirtualnydziekanat.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,28 +36,25 @@ public class AdminController {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	LogService logService;
+	
 	@ModelAttribute("user")
 	public User getUser() {
-		Authentication auth = getAuth();
-		String userName = auth.getName();
-		User user = userService.getUser(userName);
-		System.out.println("User recived from auth");
-		return user;
+		if(getAuth().getPrincipal() instanceof User) {
+			Authentication auth = getAuth();
+			User user = (User) auth.getPrincipal();
+			System.out.println("User recived from auth");
+			return user;
+		} else return new User();
 	}
 
 	private Authentication getAuth() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
 	
-	public boolean checkPrivagles(User user) {
-		if(user.getUserDetail().getAdminDetail() == null)
-			return false;
-		else return true;
-	}
-	
 	@GetMapping("/panel")
 	public ModelAndView getAdminPanel(@ModelAttribute("user") User user) {
-		
 		
 		ModelAndView mav = new ModelAndView();
 		
@@ -68,14 +66,9 @@ public class AdminController {
 	@GetMapping("/manageStudentGroups")
 	public ModelAndView getStudentGroupManagment(@ModelAttribute("user") User user) {
 		
-		if(!checkPrivagles(user)) {
-			String msg = "Brak dostepu do tej funkcjonalnosci";
-			return HomePageController.actionFailed(msg);
-		}
-		
 		ModelAndView mav = new ModelAndView();
 		
-		List<StudentGroup> studentGroupList = studentService.getStudentGroupList();
+		List<StudentGroup> studentGroupList = studentService.getStudentGroupList(user.getUserDetail());
 		mav.addObject("studentGroupList", studentGroupList);
 	
 		mav.setViewName("/admin/student-group-list");
@@ -85,12 +78,7 @@ public class AdminController {
 	
 	@GetMapping("/createStudentGroup")
 	public ModelAndView createStudentGroup(@ModelAttribute("user") User user) {
-		
-		if(!checkPrivagles(user)) {
-			String msg = "Brak dostepu do tej funkcjonalnosci";
-			return HomePageController.actionFailed(msg);
-		}
-		
+
 		ModelAndView mav = new ModelAndView();
 		
 		mav.setViewName("/admin/create-student-group");
@@ -105,18 +93,13 @@ public class AdminController {
 	public ModelAndView saveStudentGroup(@ModelAttribute("user") User user,
 					@ModelAttribute("studentGroup") StudentGroup studentGroup) {
 		
-		if(!checkPrivagles(user)) {
-			String msg = "Brak dostepu do tej funkcjonalnosci";
-			return HomePageController.actionFailed(msg);
-		}
-		
 		ModelAndView mav = new ModelAndView();
 		
-		studentService.saveStudentGroup(studentGroup);
-		studentService.saveTimeTable(studentGroup.getTimeTable());
+		studentService.saveStudentGroup(studentGroup, user.getUserDetail());
+		studentService.saveTimeTable(studentGroup.getTimeTable(), user.getUserDetail());
 		
 		String msg = "Pomylsnie zapisano grupe";
-		List<StudentGroup> studentGroupList = studentService.getStudentGroupList();
+		List<StudentGroup> studentGroupList = studentService.getStudentGroupList(user.getUserDetail());
 		mav.addObject("msg", msg);
 		mav.addObject("studentGroupList", studentGroupList);
 		
@@ -135,30 +118,15 @@ public class AdminController {
 	public ModelAndView updateStudentGroup(@ModelAttribute("user") User user,
 										@RequestParam("studentGroupId") int id) {
 		
-		if(!checkPrivagles(user)) {
-			String msg = "Brak dostepu do tej funkcjonalnosci";
-			return HomePageController.actionFailed(msg);
-		}
-		
 		ModelAndView mav = new ModelAndView();
 		
-		StudentGroup studentGroup = studentService.getStudentGroup(id);
-		
+		StudentGroup studentGroup = studentService.getStudentGroup(id, user.getUserDetail());
 		
 		UpdatingStudentGroupHelpFrom helpForm = new UpdatingStudentGroupHelpFrom();
 		
-		try{
-			if(studentGroup.getStudentDetailList() != null) { 
-				List<StudentDetail> studentList = new ArrayList();
-				studentList = studentGroup.getStudentDetailList();
-				helpForm.setStudentList(studentList);
-			}
-		} catch(Exception e){
-			System.out.println("Lista studentow nalezacych do grupy jest pusta");
-		}
+		helpForm.setStudentList(studentGroup.getStudentDetailList());
 		
-		
-		helpForm.setStudentListWithoutGroup(studentService.getStudentListWithoutGroup());
+		helpForm.setStudentListWithoutGroup(studentService.getStudentListWithoutGroup(user.getUserDetail()));
 		helpForm.setStudentGroupId(id);
 		
 		mav.addObject("studentGroup", studentGroup);
@@ -177,38 +145,35 @@ public class AdminController {
 		
 		List<StudentDetail> studentList = null;
 		
-		boolean studentListPresent = false;
+		System.out.println(helpForm);
 		
-		System.out.println(helpForm.getStudentGroupId());
+		StudentGroup studentGroup = studentService.getStudentGroup(helpForm.getStudentGroupId(), user.getUserDetail());
 		
-		StudentGroup studentGroup = studentService.getStudentGroup(helpForm.getStudentGroupId());
+		List<StudentDetail> studentListWithoutGroup = studentService.getStudentListWithoutGroup(user.getUserDetail());
 		
-		try {
-			if(studentGroup.getStudentDetailList() != null)
-				studentListPresent = true;
-		} catch(Exception e) {
-			System.out.println("StudentList not present");
+		if(!studentListWithoutGroup.isEmpty()) {
+			
+			List<Integer> processedAddCb = helpForm.getAddCB().processCheckBoxes();
+			
+			for(int index : processedAddCb) {
+				studentListWithoutGroup.get(index).setStudentGroup(studentGroup);
+				studentService.saveStudent(studentListWithoutGroup.get(index), user.getUserDetail());
+			}
 		}
 		
-		List<Integer> processedAddCb = helpForm.getAddCB().processCheckBoxes();
-		List<Integer> processedRemoveCb = helpForm.getRemoveCB().processCheckBoxes();
 		
-		if(studentListPresent)
+		if(!studentGroup.getStudentDetailList().isEmpty()) {
+			
+			List<Integer> processedRemoveCb = helpForm.getRemoveCB().processCheckBoxes();
 			studentList = studentGroup.getStudentDetailList();
-		
-		List<StudentDetail> studentListWithoutGroup = studentService.getStudentListWithoutGroup();
-		
-		for(int index : processedAddCb) {
-			studentListWithoutGroup.get(index).setStudentGroup(studentGroup);
-			studentService.saveStudent(studentListWithoutGroup.get(index));
+			
+			for(int index : processedRemoveCb) {
+				studentList.get(index).setStudentGroup(null);
+				studentService.saveStudent(studentList.get(index), user.getUserDetail());
+			}
 		}
 		
-		for(int index : processedRemoveCb) {
-			studentList.get(index).setStudentGroup(null);
-			studentService.saveStudent(studentList.get(index));
-		}
-		
-		mav.setViewName("redirect:/admin/updateStudentGroup?studentGroupId=" + studentGroup.getId());
+		mav.setViewName("redirect:/admin/updateStudentGroup?studentGroupId=" + helpForm.getStudentGroupId());
 				
 		return mav;
 	}
@@ -223,7 +188,7 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		List<User> userList = userService.getUserList();
+		List<User> userList = userService.getUserList(user.getUserDetail());
 		
 		System.out.println(userList);
 		
@@ -240,29 +205,22 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		User checkedUser = userService.getUser(id);
+		User checkedUser = userService.getUser(id, user.getUserDetail());
 		
-		Privagles privagles = new Privagles();
-		
-		if ((checkedUser.getUserDetail().getAdminDetail() == null) && (checkedUser.getUserDetail().getStudentDetail() == null)
-				&& (checkedUser.getUserDetail().getTeacherDetail() == null)) {
-	
-		} else {
-			if (checkedUser.getUserDetail().getStudentDetail() == null)
-				privagles.setStudentPrivagles(false);
+		UserDetailForm userDetailForm = new UserDetailForm(checkedUser);
 
-			if (checkedUser.getUserDetail().getTeacherDetail() == null)
-				privagles.setTeacherPrivagles(false);
+		if (checkedUser.getUserDetail().getStudentDetail() == null)
+			userDetailForm.getPrivagles().setStudentPrivagles(false);
 
-			if (checkedUser.getUserDetail().getAdminDetail() == null)
-				privagles.setAdminPrivagles(false);
+		if (checkedUser.getUserDetail().getTeacherDetail() == null)
+			userDetailForm.getPrivagles().setTeacherPrivagles(false);
 
-		}
+		if (checkedUser.getUserDetail().getAdminDetail() == null)
+			userDetailForm.getPrivagles().setAdminPrivagles(false);
 		
-		privagles.setId(id);
-		
-		mav.addObject("privagles", privagles);
-		mav.addObject("checkedUser", checkedUser);
+		userDetailForm.getPrivagles().setId(id);
+
+		mav.addObject("userDetailForm", userDetailForm);
 		
 		mav.setViewName("/admin/user-detail");
 		
@@ -271,17 +229,17 @@ public class AdminController {
 	
 	@PostMapping("/saveUserDetail")
 	public ModelAndView saveUserDetail(@ModelAttribute("user") User user,
-										@ModelAttribute("checkedUser") User checkedUser,
-										@ModelAttribute("privagles") Privagles privagles) {
+						@ModelAttribute("userDetailForm") UserDetailForm userDetailForm) {
 		
-		User tempUser = userService.getUser(privagles.getId());
+		User tempUser = userService.getUser(userDetailForm.getPrivagles().getId(), user.getUserDetail());
+		User checkedUser = userDetailForm.getUser();
 		
 		tempUser.pasteProporties(checkedUser);
-		tempUser.setUserDetail(privagles.Validate(tempUser.getUserDetail()));
+		tempUser.setUserDetail(userDetailForm.getPrivagles().Validate(tempUser.getUserDetail()));
 		
 		System.out.println(tempUser);
 		
-		userService.saveUser(tempUser);
+		userService.saveUser(tempUser, user.getUserDetail());
 		
 		System.out.println(tempUser);
 		
@@ -298,7 +256,7 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		List<Subject> subjects = studentService.getSubjectList();
+		List<Subject> subjects = studentService.getSubjectList(user.getUserDetail());
 		
 		mav.addObject("subjects", subjects);
 		
@@ -327,7 +285,7 @@ public class AdminController {
 			
 		ModelAndView mav = new ModelAndView();
 		
-		studentService.saveSubject(subject);
+		studentService.saveSubject(subject, user.getUserDetail());
 			
 		mav.setViewName("redirect:/admin/subjects");	
 			
@@ -345,10 +303,12 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		Subject subject = studentService.getSubject(subjectId);
+		Subject subject = studentService.getSubject(subjectId, user.getUserDetail());
 
-		List<StudentGroup> studentGroupListWithSubject = studentService.getStudentGroupListWithSubject(subject.getId());
-		List<StudentGroup> studentGroupListWithoutSubject = studentService.getStudentGroupListWithoutSubject(subject.getId());
+		List<StudentGroup> studentGroupListWithSubject = 
+				studentService.getStudentGroupListWithSubject(subject.getId(), user.getUserDetail());
+		List<StudentGroup> studentGroupListWithoutSubject = 
+				studentService.getStudentGroupListWithoutSubject(subject.getId(), user.getUserDetail());
 		
 		mav.addObject("subject", subject);
 		mav.addObject("studentGroupList", studentGroupListWithSubject);
@@ -366,14 +326,14 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		Subject subject = studentService.getSubject(subjectId);
+		Subject subject = studentService.getSubject(subjectId, user.getUserDetail());
 		
 		System.out.println(addedGroupId);
 		
 		if(addedGroupId != 0) {
-			TimeTable timeTable = studentService.getTimeTableByStudentGroupId(addedGroupId);
+			TimeTable timeTable = studentService.getTimeTableByStudentGroupId(addedGroupId, user.getUserDetail());
 			subject.setTimeTable(timeTable);
-			studentService.saveSubject(subject);
+			studentService.saveSubject(subject, user.getUserDetail());
 		}
 		
 		mav.setViewName("redirect:/admin/updateSubject?subjectId=" + subjectId);
@@ -388,12 +348,12 @@ public class AdminController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		Subject subject = studentService.getSubject(subjectId);
+		Subject subject = studentService.getSubject(subjectId, user.getUserDetail());
 		
 		if(removedGroupId != 0) {
-			StudentGroup temp = studentService.getStudentGroup(removedGroupId);
+			StudentGroup temp = studentService.getStudentGroup(removedGroupId, user.getUserDetail());
 			temp.getTimeTable().getSubjects().remove(subject);
-			studentService.saveSubject(subject);
+			studentService.saveSubject(subject, user.getUserDetail());
 			System.out.println(subject);
 			System.out.println(temp);
 		}
@@ -403,7 +363,19 @@ public class AdminController {
 		return mav;
 	}
 	
-	
+	@GetMapping("/logs")
+	public ModelAndView showLogs(@ModelAttribute("user") User user) {
+		
+		ModelAndView mav = new ModelAndView();
+		
+		List<Log> logs = logService.getLogs();
+		
+		mav.addObject("logs", logs);
+		
+		mav.setViewName("/admin/show-logs-form");
+		
+		return mav;
+	}
 	
 
 }

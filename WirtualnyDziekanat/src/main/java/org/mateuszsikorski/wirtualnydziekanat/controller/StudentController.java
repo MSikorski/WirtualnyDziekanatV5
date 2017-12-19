@@ -6,6 +6,8 @@ import org.mateuszsikorski.wirtualnydziekanat.entity.Subject;
 import org.mateuszsikorski.wirtualnydziekanat.entity.User;
 import org.mateuszsikorski.wirtualnydziekanat.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,22 +25,20 @@ public class StudentController {
 	
 	@ModelAttribute("user")
 	public User getUser() {
-		return new User();
+		if(getAuth().getPrincipal() instanceof User) {
+			Authentication auth = getAuth();
+			User user = (User) auth.getPrincipal();
+			System.out.println("User recived from auth");
+			return user;
+		} else return new User();
 	}
 	
-	public boolean checkPrivagles(User user) {
-		if(user.getUserDetail().getStudentDetail() == null)
-			return false;
-		else return true;
+	private Authentication getAuth() {
+		return SecurityContextHolder.getContext().getAuthentication();
 	}
 		
 	@GetMapping("/detail")
 	public ModelAndView studentDetailPage(@ModelAttribute("user") User user) {
-		
-		if(!checkPrivagles(user)) {
-			String msg = "Brak dostepu do tej funkcjonalnosci";
-			return HomePageController.actionFailed(msg);
-		}
 		
 		ModelAndView mav = new ModelAndView();
 	

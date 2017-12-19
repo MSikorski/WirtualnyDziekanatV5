@@ -20,41 +20,43 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void saveUserFirstTime(User theUser) {
+	public void saveUserFirstTime(User theUser, UserDetail userDetail) {
 		String temp = theUser.getTempPass();
+		System.out.println(temp);
 		theUser.setPassword(BCrypt.hashpw(temp, BCrypt.gensalt()));
+		System.out.println(theUser);
 		userDAO.saveUser(theUser);
 	}
 	
 	@Override
 	@Transactional
-	public void saveUser(User theUser) {
+	public void saveUser(User theUser, UserDetail userDetail) {
 		
 		userDAO.saveUser(theUser);
 	}
 
 	@Override
 	@Transactional
-	public void saveUserDetail(UserDetail theUserDetail) {
+	public void saveUserDetail(UserDetail theUserDetail, UserDetail userDetail) {
 
 		userDAO.saveUserDetail(theUserDetail);
 	}
 
 	@Override
 	@Transactional
-	public List<User> getUserList() {
+	public List<User> getUserList(UserDetail userDetail) {
 		return userDAO.getUserList();
 	}
 
 	@Override
 	@Transactional
-	public User getUser(int id) {
+	public User getUser(int id, UserDetail userDetail) {
 		return userDAO.getUser(id);
 	}
 
 	@Override
 	@Transactional
-	public User getUser(String userName) {
+	public User getUser(String userName, UserDetail userDetail) {
 		return userDAO.getUser(userName);
 	}
 

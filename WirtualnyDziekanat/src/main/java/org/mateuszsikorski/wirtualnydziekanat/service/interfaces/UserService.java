@@ -7,16 +7,16 @@ import org.mateuszsikorski.wirtualnydziekanat.entity.UserDetail;
 
 public interface UserService {
 
-	public void saveUser(User theUser);
+	public void saveUser(User theUser, UserDetail userDetail);
 
-	public void saveUserDetail(UserDetail theUserDetail);
+	public void saveUserDetail(UserDetail theUserDetail, UserDetail userDetail);
 
-	public List<User> getUserList();
+	public List<User> getUserList(UserDetail userDetail);
 
-	public User getUser(int id);
+	public User getUser(int id, UserDetail userDetail);
 
-	void saveUserFirstTime(User theUser);
+	void saveUserFirstTime(User theUser, UserDetail userDetail);
 
-	 User getUser(String userName);
+	 User getUser(String userName, UserDetail userDetail);
 	
 }

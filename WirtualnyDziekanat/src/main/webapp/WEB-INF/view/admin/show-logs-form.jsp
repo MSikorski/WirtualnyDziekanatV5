@@ -1,15 +1,11 @@
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-
-<spring:url value="/resources/css/infoboxes.css" var="infoBoxes" />
-<link href="${infoBoxes}" rel="stylesheet" />
-
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Profil uzytkownika</title>
+<title>Logi serwera</title>
 </head>
 <body>
 
@@ -41,56 +37,35 @@
 	</tr>
 </table>
 
-<div align="center">
+<center><h2>Logi serwera</h2></center>
+
+<br><br>
+
+<table width="100%">
+	<tr>
+		<th>Id logu</th>
+		<th>Link do profilu uzytkownika</th>
+		<th>Typ logu</th>
+		<th>Szczegoly logu</th>
+	</tr>
 	
-<h2>Profil uzytkownika ${user.userName}</h2>
-	
-<h3>${msg}</h3>
-
-<form:form action="saveDetail" method="POST" modelAttribute="userDetailForm">
-
-<table>
-
-	<tr>
-		<td><label>Email:</label></td>
-		<td><form:input path="user.userDetail.email" /></td>
-	</tr>
-
-	<tr>
-		<td><label>Imie:</label></td>
-		<td><form:input path="user.userDetail.firstName" /></td>
-	</tr>
-
-	<tr>
-		<td><label>Nazwisko:</label></td>
-		<td><form:input path="user.userDetail.lastName" /></td>	
-	</tr>
-
-	<tr>
-		<td><label>Numer telefonu:</label></td>
-		<td><form:input path="user.userDetail.telephoneNumber" /></td>
-	</tr>
+	<c:forEach var="tempLog" items="${logs}">
+					
+		<c:url var="detailLink" value="/admin/showUserDetail">
+			<c:param name="userId" value="${tempLog.userDetail.user.id}" />
+		</c:url>
+		
+		<c:set var="userDetail" value="${tempLog.userDetail.firstName} ${tempLog.userDetail.lastName}" />
 				
-	<tr>
-		<td><label>Uprawnienia studenta </label>
-		<form:checkbox path="privagles.studentPrivagles"/></td>
-					
-		<td><label>Uprawnienia nauczyciela </label>
-		<form:checkbox path="privagles.teacherPrivagles"/></td>
-					
-		<td><label>Uprawnienia administratora </label>
-		<form:checkbox path="privagles.adminPrivagles"/></td>				
-	</tr>
-
-	<tr>
-		<td></td>
-		<td><input type="submit" value="Save" class="save" /></td>
-	</tr>
+		<tr>
+			<td><center>${tempLog.id}</center></td>
+			<td><center><a href="${detailLink}">${userDetail}</a></center></td>
+			<td><center>${tempLog.type}</center></td>
+			<td>${tempLog.detail}</td>
+		</tr>
+	</c:forEach>
 
 </table>
-</form:form>
-</div>
-
 
 </body>
 </html>

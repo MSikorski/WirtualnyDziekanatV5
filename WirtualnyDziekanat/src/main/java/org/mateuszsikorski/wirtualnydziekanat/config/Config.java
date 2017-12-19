@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -20,18 +21,17 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "org.mateuszsikorski.wirtualnydziekanat.*")
+@EnableAspectJAutoProxy
 @EnableTransactionManagement
 public class Config extends WebMvcConfigurerAdapter{
 	
 	
 	private final String dbUrl = "jdbc:mysql://localhost:3306/dziennikmobilny?useSSL=false";
-	private final String dbUser = "root";
-	private final String dbPass = "root";
+	private final String dbUser = "springstudent";
+	private final String dbPass = "springstudent";
 	
 	/*
 	private final String dbUrl = "jdbc:mysql://localhost:3306/mateuszs_WirtualnyDziekanat?useSSL=false";

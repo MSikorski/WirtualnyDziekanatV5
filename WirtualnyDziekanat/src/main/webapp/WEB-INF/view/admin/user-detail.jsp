@@ -44,7 +44,7 @@
 	
 <h3>${msg}</h3>
 
-<form action="saveUserDetail" method="POST">
+<form:form action="saveUserDetail" method="POST" modelAttribute="userDetailForm">
 
 <form:hidden path="privagles.id" />
 
@@ -56,22 +56,22 @@
 
 	<tr>
 		<td><label>Email:</label></td>
-		<td><form:input path="checkedUser.userDetail.email" /></td>
+		<td><form:input path="user.userDetail.email" /></td>
 	</tr>
 
 	<tr>
 		<td><label>Imie:</label></td>
-		<td><form:input path="checkedUser.userDetail.firstName" /></td>
+		<td><form:input path="user.userDetail.firstName" /></td>
 	</tr>
 
 	<tr>
 		<td><label>Nazwisko:</label></td>
-		<td><form:input path="checkedUser.userDetail.lastName" /></td>
+		<td><form:input path="user.userDetail.lastName" /></td>
 	</tr>
 
 	<tr>
 		<td><label>Numer telefonu:</label></td>
-		<td><form:input path="checkedUser.userDetail.telephoneNumber" /></td>
+		<td><form:input path="user.userDetail.telephoneNumber" /></td>
 	</tr>
 				
 				
@@ -92,7 +92,7 @@
 	</tr>
 
 </table>
-</form>
+</form:form>
 </div>
 
 

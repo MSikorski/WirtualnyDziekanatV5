@@ -40,7 +40,7 @@ public class UserDetail {
 	@Column(name="telephone_number")
 	private String telephoneNumber;
 	
-	@OneToOne(cascade=CascadeType.ALL, mappedBy="userDetail")
+	@OneToOne(cascade=CascadeType.ALL, mappedBy="userDetail", fetch=FetchType.EAGER)
 	private User user;
 	
 	@OneToOne(cascade=CascadeType.ALL,
@@ -71,6 +71,9 @@ public class UserDetail {
 		this.lastName  = "Nazwisko";
 		this.telephoneNumber = "Numer telefonu";
 		this.user = user;
+		this.adminDetail = new AdminDetail(this);
+		this.teacherDetail = new TeacherDetail(this);
+		this.studentDetail = new StudentDetail(this);
 	}
 
 	public UserDetail(String email, String firstName, String lastName, String telephoneNumber) {
@@ -152,6 +155,11 @@ public class UserDetail {
 	public String toString() {
 		return "UserDetail [id=" + id + ", email=" + email + ", firstName=" + firstName + ", lastName=" + lastName
 				+ ", telephoneNumber=" + telephoneNumber + "]";
+	}
+
+	public String getShortInfo() {
+		return "[id=" + id + ", " + email + ", " + firstName + ", " + lastName
+				+ ", " + telephoneNumber + "]";
 	}
 	
 }

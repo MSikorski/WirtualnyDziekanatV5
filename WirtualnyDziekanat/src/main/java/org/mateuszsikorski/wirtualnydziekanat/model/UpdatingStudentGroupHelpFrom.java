@@ -1,10 +1,11 @@
 package org.mateuszsikorski.wirtualnydziekanat.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.mateuszsikorski.wirtualnydziekanat.entity.StudentDetail;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UpdatingStudentGroupHelpFrom {
 
 	private List<StudentDetail> studentList;
@@ -15,15 +16,10 @@ public class UpdatingStudentGroupHelpFrom {
 	
 	private MultipleCheckBoxes removeCB;
 	
-	private int studentGroupId;
+	private Integer studentGroupId;
 	
-	public UpdatingStudentGroupHelpFrom() {
-		addCB = new MultipleCheckBoxes();
-		removeCB = new MultipleCheckBoxes();
-		studentList = new ArrayList();
-		studentListWithoutGroup = new ArrayList();
-	}
-	
+	public UpdatingStudentGroupHelpFrom() {}
+
 	public int getStudentGroupId() {
 		return studentGroupId;
 	}
@@ -63,7 +59,13 @@ public class UpdatingStudentGroupHelpFrom {
 	public void setRemoveCB(MultipleCheckBoxes removeCB) {
 		this.removeCB = removeCB;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "UpdatingStudentGroupHelpFrom [studentList=" + studentList + ", studentListWithoutGroup="
+				+ studentListWithoutGroup + ", addCB=" + addCB + ", removeCB=" + removeCB + ", studentGroupId="
+				+ studentGroupId + "]";
+	}
 	
 	
 }

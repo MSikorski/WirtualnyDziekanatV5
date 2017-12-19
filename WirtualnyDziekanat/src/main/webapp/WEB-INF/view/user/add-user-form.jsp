@@ -47,47 +47,35 @@
 	</tr>
 </table>
 
-	<div align="center">
+<div align="center">
 
-		<h2>Rejestracja nowego uzytkownika</h2>
+<h2>Rejestracja nowego uzytkownika</h2>
+${msg}
 
-		<form action="save" method="POST">
+<form:form action="/WirtualnyDziekanat/user/save" method="POST" modelAttribute="user">
+<table>
+	<tr>
+		<td><label>Nazwa uzytknownika:</label></td>
+		<td><form:input path="userName" /></td>
+		<td><center> <form:errors path="userName" /></center></td>
+	</tr>
 
-		${msg}
-
-			<table>
-				<tbody>
-
-					<tr>
-						<td><label>Nazwa uzytknownika:</label></td>
-						<td><form:input path="user.userName" /></td>
-						<td><div class="isa_error">
-								<i class="fa fa-times-circle"></i><center>
-								 <form:errors path="user.userName" /></center>
-							</div></td>
-					</tr>
-
-					<tr>
-						<td><label>Haslo:</label></td>
-						<td><form:password path="user.tempPass" /></td>
-						<td><div class="isa_error">
-								<i class="fa fa-times-circle"></i><center>
-						<form:errors path="user.tempPass" /></center>
-						</div></td>
-					</tr>
+	<tr>
+		<td><label>Haslo:</label></td>
+		<td><form:password path="tempPass" /></td>
+		<td><center><form:errors path="tempPass" /></center></td>
+	</tr>
 
 
-					<tr>
-						<td></td>
-						<td><input type="submit" value="Wyslij" /></td>
-					</tr>
-
-				</tbody>
-			</table>
+	<tr>
+		<td></td>
+		<td><input type="submit" name="submit" value="Wyslij" /></td>
+	</tr>
 
 
-		</form>
-	</div>
+</table>
+</form:form>
+</div>
 
 
 </body>

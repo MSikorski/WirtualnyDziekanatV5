@@ -87,7 +87,7 @@ public class TimeTable {
 
 	@Override
 	public String toString() {
-		return "TimeTable [id=" + id + ", studentGroup=" + studentGroup + ", subjects=" + subjects + ", subjectTime="
+		return "TimeTable [id=" + id + ", studentGroupId=" + studentGroup.getId() + ", subjects=" + subjects + ", subjectTime="
 				+ Arrays.toString(subjectTime) + "]";
 	}
 

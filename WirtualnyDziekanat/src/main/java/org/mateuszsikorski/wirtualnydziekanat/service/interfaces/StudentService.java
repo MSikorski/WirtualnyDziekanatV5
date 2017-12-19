@@ -8,38 +8,39 @@ import org.mateuszsikorski.wirtualnydziekanat.entity.StudentGroup;
 import org.mateuszsikorski.wirtualnydziekanat.entity.Subject;
 import org.mateuszsikorski.wirtualnydziekanat.entity.TimeTable;
 import org.mateuszsikorski.wirtualnydziekanat.entity.User;
+import org.mateuszsikorski.wirtualnydziekanat.entity.UserDetail;
 
 public interface StudentService {
 	
-	public TimeTable getTimeTable(User user);
+	public TimeTable getTimeTable(User user, UserDetail userDetail);
 
-	public List<Mark> getMarks(User user);
+	public List<Mark> getMarks(User user, UserDetail userDetail);
 
-	List<StudentGroup> getStudentGroupList();
+	public List<StudentGroup> getStudentGroupList(UserDetail userDetail);
 
-	public void saveStudentGroup(StudentGroup studentGroup);
+	public void saveStudentGroup(StudentGroup studentGroup, UserDetail userDetail);
 
-	void saveTimeTable(TimeTable timeTable);
+	public void saveTimeTable(TimeTable timeTable, UserDetail userDetail);
 
-	public StudentGroup getStudentGroup(int id);
+	public StudentGroup getStudentGroup(int id, UserDetail userDetail);
 
-	public List<StudentDetail> getStudentListWithoutGroup();
+	public List<StudentDetail> getStudentListWithoutGroup(UserDetail userDetail);
 
-	public void saveStudent(StudentDetail tempStudent);
+	public void saveStudent(StudentDetail tempStudent, UserDetail userDetail);
 
-	public List<Subject> getSubjectList();
+	public List<Subject> getSubjectList(UserDetail userDetail);
 
-	List<Subject> getUserSubjects(User user);
+	public List<Subject> getUserSubjects(User user, UserDetail userDetail);
 
-	public void saveSubject(Subject subject);
+	public void saveSubject(Subject subject, UserDetail userDetail);
 
-	public Subject getSubject(int subjectId);
+	public Subject getSubject(int subjectId, UserDetail userDetail);
 
-	public List<StudentGroup> getStudentGroupListWithSubject(int subjectId);
+	public List<StudentGroup> getStudentGroupListWithSubject(int subjectId, UserDetail userDetail);
 
-	public List<StudentGroup> getStudentGroupListWithoutSubject(int id);
+	public List<StudentGroup> getStudentGroupListWithoutSubject(int id, UserDetail userDetail);
 
-	public TimeTable getTimeTableByStudentGroupId(int addedGroupId);
+	public TimeTable getTimeTableByStudentGroupId(int addedGroupId, UserDetail userDetail);
 
-	public List<StudentDetail> getStudentListWithGroupId(int id);
+	public List<StudentDetail> getStudentListWithGroupId(int id, UserDetail userDetail);
 }

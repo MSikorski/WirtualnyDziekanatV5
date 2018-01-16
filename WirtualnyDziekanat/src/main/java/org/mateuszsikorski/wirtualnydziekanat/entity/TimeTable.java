@@ -27,7 +27,7 @@ public class TimeTable {
 	private int id;
 
 	@OneToOne(cascade = CascadeType.ALL, 
-			fetch = FetchType.LAZY)
+			fetch = FetchType.EAGER)
 	@JoinColumn(name = "student_group_id")
 	private StudentGroup studentGroup;
 

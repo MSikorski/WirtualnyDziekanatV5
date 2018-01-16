@@ -237,6 +237,11 @@ public class AdminController {
 		tempUser.pasteProporties(checkedUser);
 		tempUser.setUserDetail(userDetailForm.getPrivagles().Validate(tempUser.getUserDetail()));
 		
+		StudentDetail tempDetail = tempUser.getUserDetail().getStudentDetail();
+		
+		tempDetail.setIndexNumber(checkedUser.getUserDetail().getStudentDetail().getIndexNumber());
+		tempDetail.setSpecialization(checkedUser.getUserDetail().getStudentDetail().getSpecialization());
+		
 		System.out.println(tempUser);
 		
 		userService.saveUser(tempUser, user.getUserDetail());
@@ -311,7 +316,7 @@ public class AdminController {
 				studentService.getStudentGroupListWithoutSubject(subject.getId(), user.getUserDetail());
 		
 		mav.addObject("subject", subject);
-		mav.addObject("studentGroupList", studentGroupListWithSubject);
+		mav.addObject("studentGroupListWithSubject", studentGroupListWithSubject);
 		mav.addObject("studentGroupListWithoutSubject", studentGroupListWithoutSubject);
 		
 		mav.setViewName("/admin/update-subject");

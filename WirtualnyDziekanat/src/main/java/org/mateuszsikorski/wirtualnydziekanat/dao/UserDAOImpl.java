@@ -2,10 +2,13 @@ package org.mateuszsikorski.wirtualnydziekanat.dao;
 
 import java.util.List;
 
-import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.mateuszsikorski.wirtualnydziekanat.dao.interfaces.UserDAO;
 import org.mateuszsikorski.wirtualnydziekanat.entity.User;
 import org.mateuszsikorski.wirtualnydziekanat.entity.UserDetail;
@@ -39,11 +42,14 @@ public class UserDAOImpl implements UserDAO {
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM User";
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<User> query = builder.createQuery(User.class);
 		
-		Query query = currentSession.createQuery(hql);
+		Root<User> root = query.from(User.class);
+		query.select(root);
+		Query<User> q = currentSession.createQuery(query);
 		
-		List<User> users = query.getResultList();
+		List<User> users = q.getResultList();
 		
 		return users;
 	}
@@ -61,11 +67,14 @@ public class UserDAOImpl implements UserDAO {
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM User u WHERE u.userName=" + userName;
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<User> query = builder.createQuery(User.class);
 		
-		Query query = currentSession.createQuery(hql);
+		Root<User> root = query.from(User.class);
+		query.select(root).where(builder.equal(root.get("userName"), userName));
+		Query<User> q = currentSession.createQuery(query);
 		
-		User user = (User) query.getSingleResult();
+		User user = q.getSingleResult();
 		
 		return user;
 	}

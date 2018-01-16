@@ -25,9 +25,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		
 		LoginDetail loginDetail = new LoginDetail(userName, password);
 		
-		System.out.println("auth: " + authentication.getCredentials());
-		System.out.println("Username: " + userName);
-		System.out.println("password: " + password);
+		System.out.println(loginDetail.toString());
 		
 		Authentication auth = null;
 		

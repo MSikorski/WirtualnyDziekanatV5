@@ -5,8 +5,8 @@
 <html>
 <head>
 
-<spring:url value="/resources/css/infoboxes.css" var="infoBoxes" />
-<link href="${infoBoxes}" rel="stylesheet" />
+<spring:url value="/resources/css/table.css" var="tables" />
+<link href="${tables}" rel="stylesheet" />
 
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Profil uzytkownika</title>
@@ -72,14 +72,16 @@
 	</tr>
 				
 	<tr>
-		<td><label>Uprawnienia studenta </label>
-		<form:checkbox path="privagles.studentPrivagles"/></td>
-					
-		<td><label>Uprawnienia nauczyciela </label>
-		<form:checkbox path="privagles.teacherPrivagles"/></td>
-					
-		<td><label>Uprawnienia administratora </label>
-		<form:checkbox path="privagles.adminPrivagles"/></td>				
+		<td>
+		<label>Student </label>
+		<label>Nauczyciel </label>
+		<label>Administrator </label>
+		</td>
+		<td>
+		<form:checkbox path="privagles.studentPrivagles"/>
+		<form:checkbox path="privagles.teacherPrivagles"/>	
+		<form:checkbox path="privagles.adminPrivagles"/>		
+		</td>	
 	</tr>
 
 	<tr>

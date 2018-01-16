@@ -2,9 +2,12 @@
     pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<spring:url value="/resources/css/table.css" var="tables" />
+<link href="${tables}" rel="stylesheet" />
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Insert title here</title>
 </head>
@@ -40,7 +43,7 @@
 
 <center>
 <h2>Stworz grupe studencka</h2>
-<form:form action="saveStudentGroup" method="POST">
+<form:form action="saveStudentGroup" method="POST" modelAttribute="studentGroup">
 
 	${msg}
 
@@ -48,7 +51,7 @@
 
 		<tr>
 			<td><label>Nazwa grupy:</label></td>
-			<td><input type="text" name="studentGroup.name" /></td>
+			<td><input type="text" name="name" /></td>
 		</tr>
 
 		<tr>
@@ -57,6 +60,7 @@
 		</tr>
 		
 		<tr>
+			<td></td>
 			<td><input type="submit" value="Wyslij" /></td>
 		</tr>
 			

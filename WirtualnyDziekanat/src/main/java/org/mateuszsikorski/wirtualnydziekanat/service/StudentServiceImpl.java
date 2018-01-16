@@ -62,6 +62,7 @@ public class StudentServiceImpl implements StudentService {
 	@Override
 	@Transactional
 	public StudentGroup getStudentGroup(int id, UserDetail userDetail) {
+		
 		StudentGroup studentGroup = studentDAO.getStudentGroup(id);
 		List<StudentDetail> studentList = studentDAO.getStudentListWithGrupId(id);
 		

@@ -7,6 +7,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<spring:url value="/resources/css/table.css" var="tables" />
+<link href="${tables}" rel="stylesheet" />
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Zarzadzanie przedmiotem</title>
 </head>
@@ -40,14 +42,15 @@
 	</tr>
 </table>
 
-<center><h2>Zarzadzanie przedmiotem ${subject.name}</h2></center>
+<center><h2>Zarzadzanie przedmiotem ${subject.name}</h2>
+<h3>${subject.detail}</h3></center>
 
 <h4>Lista grup w ktorych wystepuje przedmiot</h4>
 <table>
 	<tr>
 		<th>Nazwa grupy</th>
 		<th>Id</th>
-		<th>Usun przedmiot z grupy</th>
+		<th>Usun</th>
 	</tr>
 	
 	<c:forEach var="tempStudentGroup" items="${studentGroupListWithSubject}">
@@ -73,7 +76,7 @@
 	<tr>
 		<th>Nazwa grupy</th>
 		<th>Id</th>
-		<th>Dodaj przedmiot do grupy</th>
+		<th>Dodaj</th>
 	</tr>
 	
 	<c:forEach var="tempStudentGroup" items="${studentGroupListWithoutSubject}">

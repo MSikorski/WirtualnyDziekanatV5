@@ -6,11 +6,11 @@
 <html>
 <head>
 
-<spring:url value="/resources/css/infoboxes.css" var="infoBoxes" />
-<link href="${infoBoxes}" rel="stylesheet" />
+<spring:url value="/resources/css/table.css" var="tables" />
+<link href="${tables}" rel="stylesheet" />
 
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Rejestracja noowego uzytkownika</title>
+<title>Logowanie uzytkownika</title>
 </head>
 <body>
 

@@ -1,5 +1,9 @@
 package org.mateuszsikorski.wirtualnydziekanat.dao;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -21,36 +25,26 @@ public class LoginDAOImpl implements LoginDAO{
 
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		System.out.println("checkUser called");
-		
-		String hql = "FROM User u WHERE u.userName=" + user;
-		Query query = currentSession.createQuery(hql);
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
+		query.select(root).where(builder.equal(root.get("userName"), user));
+		Query<User> q = currentSession.createQuery(query);
 		
 		try{
-			tempUser = (User) query.getSingleResult();
+			tempUser = q.getSingleResult();
 		} catch (Exception e){
 			return false;
 		}
-		return true;
+		if(tempUser != null)
+			return true;
+		else return false;
 	}
 	
 	@Override
 	public String getUserPassHash(String user){
 		
-		Session currentSession = sessionFactory.getCurrentSession();
-		
-		String hql = "SELECT u.password FROM User u WHERE u.userName=" + user;
-		System.out.println(hql);
-		Query query = currentSession.createQuery(hql);
-
-		String temp = "";
-		
-		try {
-		temp = (String) query.getSingleResult();
-		} catch(Exception e){
-		}
-		
-		return temp;
+		return tempUser.getPassword();
 	}
 
 	@Override

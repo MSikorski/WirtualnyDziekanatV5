@@ -39,7 +39,7 @@ public class Subject {
 				CascadeType.DETACH, CascadeType.REFRESH })
 	private List<Mark> marks;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "time_table_id")
 	private TimeTable timeTable;
 
@@ -115,8 +115,7 @@ public class Subject {
 
 	@Override
 	public String toString() {
-		return "Subject [id=" + id + ", name=" + name + ", detail=" + detail + ", time=" + time + ", timeTable="
-				+ timeTable + ", teachers=" + teachers + "]";
+		return "Subject [id=" + id + ", name=" + name + ", detail=" + detail + ", time=" + time + "]";
 	}
 
 }

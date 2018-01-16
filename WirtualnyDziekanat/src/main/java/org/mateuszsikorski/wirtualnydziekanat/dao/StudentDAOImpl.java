@@ -3,6 +3,10 @@ package org.mateuszsikorski.wirtualnydziekanat.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -26,21 +30,16 @@ public class StudentDAOImpl implements StudentDAO{
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		List<Subject> tempList;
 		StudentGroup studentGroup = user.getUserDetail().getStudentDetail().getStudentGroup();
 		int timeTableId = studentGroup.getTimeTable().getId();
-		String hql = "FROM Subject s WHERE s.timeTableId=" + timeTableId;
-		System.out.println(hql);
 		
-		Query query = currentSession.createQuery(hql);
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<Subject> query = builder.createQuery(Subject.class);
+		Root<Subject> root = query.from(Subject.class);
+		query.select(root).where(builder.equal(root.get("timeTableId"), timeTableId));
+		Query<Subject> q = currentSession.createQuery(query);
 		
-		try{
-			tempList = query.getResultList();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
+		List<Subject> tempList = q.getResultList();
 		return tempList;
 	}
 
@@ -49,17 +48,13 @@ public class StudentDAOImpl implements StudentDAO{
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		List<StudentGroup> tempList;
-		String hql = "FROM StudentGroup";
-		Query query = currentSession.createQuery(hql);
-		
-		try{
-			tempList = query.getResultList();
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<StudentGroup> query = builder.createQuery(StudentGroup.class);
+		Root<StudentGroup> root = query.from(StudentGroup.class);
+		query.select(root);
+		Query<StudentGroup> q = currentSession.createQuery(query);
+	
+		List<StudentGroup> tempList = q.getResultList();
 		return tempList;
 	}
 
@@ -94,19 +89,13 @@ public class StudentDAOImpl implements StudentDAO{
 
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM StudentDetail s WHERE s.studentGroup IS NULL";
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<StudentDetail> query = builder.createQuery(StudentDetail.class);
+		Root<StudentDetail> root = query.from(StudentDetail.class);
+		query.select(root).where(builder.isNull(root.get("studentGroup")));
+		Query<StudentDetail> q = currentSession.createQuery(query);
 		
-		Query query = currentSession.createQuery(hql);
-		
-		List<StudentDetail> temp;
-		
-		try {
-			temp = query.getResultList();
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
+		List<StudentDetail> temp = q.getResultList();
 		return temp;
 	}
 
@@ -123,11 +112,15 @@ public class StudentDAOImpl implements StudentDAO{
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM Subject";
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<Subject> query = builder.createQuery(Subject.class);
+		Root<Subject> root = query.from(Subject.class);
+		query.select(root);
+		Query<Subject> q = currentSession.createQuery(query);
 		
-		Query query = currentSession.createQuery(hql);
+		List<Subject> subjects = null;
 		
-		List<Subject> subjects = query.getResultList();
+		subjects = q.getResultList();
 		
 		return subjects;
 	}
@@ -155,20 +148,30 @@ public class StudentDAOImpl implements StudentDAO{
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "SELECT s.timeTable FROM Subject s WHERE s.id=" + subjectId;
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<Subject> query = builder.createQuery(Subject.class);
+		Root<Subject> root = query.from(Subject.class);
+		query.select(root).where(builder.equal(root.get("id"), subjectId));;
+		Query<Subject> q = currentSession.createQuery(query);
 		
-		Query query = currentSession.createQuery(hql);
+		List<Subject> tempSubjectList = q.getResultList();
+		List<TimeTable> tempTimeTableList = new ArrayList<TimeTable>();
 		
-		List<TimeTable> timeTableList = query.getResultList();
+		System.out.println("DEBUG----- " + tempSubjectList.toString());
 		
-		List<StudentGroup> studentGroupList = new ArrayList();
-		
-		for(TimeTable temp : timeTableList) {
-			hql = "SELECT t.studentGroup FROM TimeTable t WHERE t.id=" + temp.getId();
-			query = currentSession.createQuery(hql);
-			StudentGroup tempStudentGroup = (StudentGroup) query.getSingleResult();
-			studentGroupList.add(tempStudentGroup);
+		for(Subject tempSubject : tempSubjectList) {
+			if(tempSubject.getTimeTable() != null)
+				tempTimeTableList.add(tempSubject.getTimeTable());
 		}
+			
+		List<StudentGroup> studentGroupList = new ArrayList<StudentGroup>();
+		
+		if(!tempTimeTableList.isEmpty()) {
+			for(TimeTable tempTimeTable : tempTimeTableList) {
+				StudentGroup tempStudentGroup = tempTimeTable.getStudentGroup();
+				studentGroupList.add(tempStudentGroup);
+			}
+		} else return null;
 		
 		return studentGroupList;
 	}
@@ -179,10 +182,14 @@ public class StudentDAOImpl implements StudentDAO{
 		List<StudentGroup> studentGroupListWithSubject = getStudentGroupListWithSubject(subjectId);
 		List<StudentGroup> studentGroupListWithoutSubject = getStudentGroupList();
 		
-		for(StudentGroup tempStudentGroupWithSubject : studentGroupListWithSubject) {
-			for(int i=0; i < studentGroupListWithoutSubject.size(); i++) {
-				if(tempStudentGroupWithSubject.equals(studentGroupListWithoutSubject.get(i))) {
-					studentGroupListWithoutSubject.remove(i);
+		if(studentGroupListWithSubject == null) {
+			return studentGroupListWithoutSubject;
+		} else {
+			for(StudentGroup tempStudentGroupWithSubject : studentGroupListWithSubject) {
+				for(int i=0; i < studentGroupListWithoutSubject.size(); i++) {
+					if(tempStudentGroupWithSubject.equals(studentGroupListWithoutSubject.get(i))) {
+						studentGroupListWithoutSubject.remove(i);
+					}
 				}
 			}
 		}
@@ -195,26 +202,28 @@ public class StudentDAOImpl implements StudentDAO{
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM TimeTable t WHERE t.studentGroup=" + studentGroupId;
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<TimeTable> query = builder.createQuery(TimeTable.class);
+		Root<TimeTable> root = query.from(TimeTable.class);
+		query.select(root).where(builder.equal(root.get("studentGroup"), studentGroupId));
+		Query<TimeTable> q = currentSession.createQuery(query);
 		
-		Query query = currentSession.createQuery(hql);
-		
-		TimeTable timeTable = (TimeTable) query.getSingleResult();
-		
+		TimeTable timeTable = q.getSingleResult();
 		return timeTable;
 	}
 
 	@Override
-	public List<StudentDetail> getStudentListWithGrupId(int groupId) {
+	public List<StudentDetail> getStudentListWithGrupId(int studentGroupId) {
 
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String hql = "FROM StudentDetail s WHERE s.studentGroup=" + groupId;
+		CriteriaBuilder builder = currentSession.getCriteriaBuilder();
+		CriteriaQuery<StudentDetail> query = builder.createQuery(StudentDetail.class);
+		Root<StudentDetail> root = query.from(StudentDetail.class);
+		query.select(root).where(builder.equal(root.get("studentGroup"), studentGroupId));
+		Query<StudentDetail> q = currentSession.createQuery(query);
 		
-		Query query = currentSession.createQuery(hql);
-		
-		List<StudentDetail> studentDetailList = query.getResultList();
-		
+		List<StudentDetail> studentDetailList = q.getResultList();
 		return studentDetailList;
 	}
 	
